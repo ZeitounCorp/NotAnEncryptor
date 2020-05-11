@@ -1,0 +1,108 @@
+#!/usr/local/bin/node
+
+/**
+* Author: Lenny Zeitoun
+* Github: @ZeitounCorp
+* Date: 04/05/20
+*/
+
+// Extract arguments passed to the script
+let args = process.argv.slice(2);
+
+// Define Colors for the output
+let reset = "\x1b[0m";
+let red = "\x1b[31m";
+let blue = "\x1b[34m";
+let green = "\x1b[32m";
+let white = "\x1b[37m";
+
+/**
+* 3 functions will be available depending on user inputs:
+* 	1.case "--help || -h || args.length == 0" => call help()
+*	  2.case "--encrypt || -e" => call encrypt(st, pass), require 2 args else call error('encrypt')
+*	  3.case "--decrypt || -d" => call decrypt(pass, st), require 2 args else call error('decrypt')
+*/
+
+switch (args[0]) {
+  case '--help':
+  case '-h':
+    help();
+    break;
+  case '--encrypt':
+  case '-e':
+    if (args.length != 3) {
+      error('encrypt')
+    } else {
+      encrypt(args[1], args[2])
+    }
+    break;
+  case '--decrypt':
+  case '-d':
+    if (args.length != 3) {
+      error('decrypt')
+    } else {
+      decrypt(args[2], args[1])
+    }
+    break;
+  default:
+    help();
+}
+
+function encrypt(st, pass) {
+  let pass_l = pass.length;
+  let encrypted = '';
+  for (i in st) {
+    if (st[i] !== ' ') {
+      let char_c = st.charCodeAt(i);
+      if (i % 2 === 0) {
+        encrypted += String.fromCharCode(char_c + pass_l);
+      } else {
+        encrypted += String.fromCharCode(char_c - pass_l)
+      }
+    } else {
+      encrypted += st[i];
+    }
+  }
+  console.log(`${white}%s${reset}`, `Here is your encryption ${encrypted}\npass: ${pass}`);
+}
+
+function decrypt(pass, st) {
+  let pass_l = pass.length;
+  let decrypted = '';
+  for (i in st) {
+    if (st[i] !== ' ') {
+      let char_c = st.charCodeAt(i);
+      if (i % 2 === 0) {
+        decrypted += String.fromCharCode(char_c - pass_l);
+      } else {
+        decrypted += String.fromCharCode(char_c + pass_l)
+      }
+    } else {
+      decrypted += st[i];
+    }
+  }
+  console.log(`${white}%s${reset}`, `Your mission, if you will: ${decrypted}`);
+}
+
+
+function help() {
+  console.log(`${green}%s${reset}`,
+    `ENCRYPTOR PROGRAM:
+BROUGHT TO YOU BY: LENNY ZEITOUN
+
+DESCRIPTION: A simple encryptor for your terminal
+ARGS<S>:
+
+	--help,      -h present you the functionnality for this program
+	--encrypt,   -e [st: string] [pass: string]  encrypt the st parameter through pass
+	--decrypt,   -d [st: string] [pass: string]  decrypt the st parameter with pass
+
+CREATED ON: 05/11/20
+LAST UPDATE: 05/11/20
+`);
+}
+
+function error(arg) {
+  console.log(`${red}%s${reset}`, `Error while trying to invoke function '${arg}', indeed 2 params are required and you are missing one or more`);
+  help();
+}
